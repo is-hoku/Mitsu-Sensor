@@ -4,13 +4,13 @@ import time
 import subprocess
 
 
-cap1 = cv2.VideoCapture(2)
-cap2 = cv2.VideoCapture(0)
+cap1 = cv2.VideoCapture(4)
+cap2 = cv2.VideoCapture(2)
 cap1.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap1.set(cv2.CAP_PROP_FRAME_HEIGHT, 360)
 cap2.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap2.set(cv2.CAP_PROP_FRAME_HEIGHT, 360)
-cnt = 0
+# cnt = 0
 delay = 1
 
 
@@ -22,8 +22,8 @@ while True:
     # frame2 = frame2[:339, :]
     frame1 = cv2.copyMakeBorder(frame1, 11, 0, 15, 0, cv2.BORDER_CONSTANT, 0)
     # frame2 = cv2.copyMakeBorder(frame2, 0, 21, 0, 0, cv2.BORDER_CONSTANT, 0)
-    # mat = cv2.getRotationMatrix2D((320, 180), -2, 1)
-    # frame1 = cv2.warpAffine(frame1, mat, (640, 360))
+    mat = cv2.getRotationMatrix2D((320, 180), -1.5, 1)
+    frame1 = cv2.warpAffine(frame1, mat, (640, 360))
 
     hog = cv2.HOGDescriptor()
     hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
@@ -51,7 +51,7 @@ while True:
     # cv2.imshow('frame1', frame1)
     # cv2.imshow('frame2', frame2)
     # print(out)
-    # print(np.count_nonzero(out == -16))
+    print(np.count_nonzero(out == -16))
     # print('')
     out = np.where(out<0, 0, out)
     out = out.astype(np.uint8)
@@ -63,14 +63,15 @@ while True:
         x1 = point[i+1][0]
         y1 = point[i+1][1]
 
-        if (abs(out[y1][x1] - out[y0][x0]) <= 60) and (abs(x1 - x0) <= 100) and (out[y1][x1] + out[y0][x0] != 0):
-            print(cnt, "密です")
+        # if (abs(out[y1][x1] - out[y0][x0]) <= 60) and (abs(x1 - x0) <= 100) and (out[y1][x1] + out[y0][x0] != 0):
+        if (abs(out[y1][x1] - out[y0][x0]) <= 60) and (abs(x1 - x0) <= 100):
+            # print(cnt, "密です")
             subprocess.call("mpg321 mitsudesu.mp3", shell=True)
             cv2.circle(frame1, (x0, y0), 15, (0, 50, 255), thickness=-1)
             cv2.putText(frame1, '3Cs', (x0, y0), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), thickness=2)
             cv2.circle(frame1, (x1, y1), 15, (0, 50, 255), thickness=-1)
             cv2.putText(frame1, '3Cs', (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), thickness=2)
-            cnt += 1
+            # cnt += 1
 
     cv2.imshow('frame1', frame1)
     cv2.imshow('frame2', frame2)
@@ -78,7 +79,7 @@ while True:
 
     if cv2.waitKey(delay) & 0xFF == ord('q'):
         break
-    time.sleep(1)
+    # time.sleep(1)
 # cv2.imwrite('./frame1.png', frame1)
 # cv2.imwrite('./frame2.png', frame2)
 # cv2.imwrite('./out.png', out)
